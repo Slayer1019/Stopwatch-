@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Style Stopwatch</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+        }
+        .stopwatch {
+            text-align: center;
+            width: 100%;
+            max-width: 750px;
+        }
+        .time {
+            font-size: 9rem;
+            font-weight: 200;
+            margin-bottom: 30px;
+            letter-spacing: 0.1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .time span {
+            display: inline-block;
+            width: 2em;
+            text-align: center;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+        .buttons button {
+            font-size: 1.8rem;
+            border: none;
+            border-radius: 50%;
+            width: 135px;
+            height: 135px;
+            cursor: pointer;
+            text-transform: capitalize;
+            font-weight: 400;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            outline: none;
+        }
+        .start {
+            background: rgba(52, 199, 89, 0.2);
+            color: #34c759;
+            border: 2px solid #34c759;
+        }
+        .stop {
+            background: rgba(255, 59, 48, 0.2);
+            color: #ff3b30;
+            border: 2px solid #ff3b30;
+        }
+        .reset {
+            background: rgba(142, 142, 147, 0.2);
+            color: #8e8e93;
+            border: 2px solid #8e8e93;
+        }
+        .lap-table {
+            width: 100%;
+            max-width: 750px;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
+        .lap-table th, .lap-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+        .lap-table th {
+            font-weight: 600;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch">
+        <div class="time">
+            <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
+        </div>
+        <div class="buttons">
+            <button class="reset" onclick="resetTimer()">Reset</button>
+            <button class="start" onclick="toggleTimer()">Start</button>
+        </div>
+        <table class="lap-table">
+            <thead>
+                <tr>
+                    <th>Lap No.</th>
+                    <th>Split</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="laps">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let timer;
+        let seconds = 0, minutes = 0, hours = 0;
+        let running = false;
+        let lapCounter = 0;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const hoursElement = document.querySelector(".hours");
+            const minutesElement = document.querySelector(".minutes");
+            const secondsElement = document.querySelector(".seconds");
+            const startButton = document.querySelector(".start");
+            const lapsElement = document.getElementById("laps");
+
+            function updateTime() {
+                seconds++;
+                if (seconds === 60) {
+                    seconds = 0;
+                    minutes++;
+                    if (minutes === 60) {
+                        minutes = 0;
+                        hours++;
+                    }
+                }
+                hoursElement.textContent = String(hours).padStart(2, '0');
+                minutesElement.textContent = String(minutes).padStart(2, '0');
+                secondsElement.textContent = String(seconds).padStart(2, '0');
+            }
+
+            window.toggleTimer = function() {
+                if (!running) {
+                    running = true;
+                    startButton.textContent = "Stop";
+                    startButton.classList.remove("start");
+                    startButton.classList.add("stop");
+                    timer = setInterval(updateTime, 1000);
+                } else {
+                    running = false;
+                    startButton.textContent = "Start";
+                    startButton.classList.remove("stop");
+                    startButton.classList.add("start");
+                    clearInterval(timer);
+                }
+            };
+
+            window.resetTimer = function() {
+                running = false;
+                clearInterval(timer);
+                seconds = 0;
+                minutes = 0;
+                hours = 0;
+                lapCounter = 0;
+                hoursElement.textContent = "00";
+                minutesElement.textContent = "00";
+                secondsElement.textContent = "00";
+                lapsElement.innerHTML = "";
+                startButton.textContent = "Start";
+                startButton.classList.remove("stop");
+                startButton.classList.add("start");
+            };
+
+            window.recordLap = function() {
+                lapCounter++;
+                const lapTime = `${hoursElement.textContent}:${minutesElement.textContent}:${secondsElement.textContent}`;
+                const newRow = document.createElement("tr");
+                newRow.innerHTML = `<td>Lap ${lapCounter}</td><td>${lapTime}</td><td>${lapTime}</td>`;
+                lapsElement.appendChild(newRow);
+            };
+        });
+    </script>
+</body>
+</html>
